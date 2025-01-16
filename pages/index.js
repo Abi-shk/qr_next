@@ -6,7 +6,6 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Head from 'next/head';
 
-
 const Home = () => {
   const videoRef = useRef(null);
   const [scanningEnabled, setScanningEnabled] = useState(false);
@@ -14,14 +13,13 @@ const Home = () => {
   const [searchMobile, setSearchMobile] = useState(""); 
   const [foundStudent, setFoundStudent] = useState(null);
 
-  // Fetch validated users when component loads
   useEffect(() => {
     const fetchValidatedUsers = async () => {
       try {
         const response = await fetch("/api/get_data");
         if (response.ok) {
           const result = await response.json();
-          setValidatedList(result.data); // Set validated users
+          setValidatedList(result.data);
         } else {
           toast.error("Failed to fetch validated users.");
         }
@@ -34,7 +32,6 @@ const Home = () => {
     fetchValidatedUsers();
   }, [foundStudent]);
 
-  // QR Scanner
   useEffect(() => {
     let qrScanner;
     if (videoRef.current && scanningEnabled) {
@@ -51,14 +48,11 @@ const Home = () => {
 
   const searchByMobile = async () => {
     if (!searchMobile.trim()) {
-      console.log("Mobile number input is empty.");
       toast.error("Please enter a mobile number.");
       return;
     }
 
     try {
-      console.log("Searching for mobile:", searchMobile);
-
       const response = await fetch("/api/search_or_validate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -67,7 +61,6 @@ const Home = () => {
 
       if (response.ok) {
         const result = await response.json();
-        console.log("API response data:", result);
         setFoundStudent(result.data);
       } else {
         const error = await response.json();
@@ -79,7 +72,6 @@ const Home = () => {
     }
   };
 
-  // Manual validation when the button is clicked
   const validateStudent = async (student) => {
     try {
       const response = await fetch("/api/validate_student", {
@@ -91,12 +83,12 @@ const Home = () => {
       if (response.ok) {
         const result = await response.json();
         toast.success(result.message);
-        setValidatedList((prev) => [...prev, result.data]); // Add validated student to list
+        setValidatedList((prev) => [...prev, result.data]);
       } else {
         const error = await response.json();
         toast.error(error.message || "Validation failed.");
       }
-      setSearchMobile("");   // Clear the search input
+      setSearchMobile("");
       setFoundStudent(null);
     } catch (error) {
       console.error("Error validating student:", error);
@@ -104,21 +96,19 @@ const Home = () => {
     }
   };
 
-  // QR scanning logic update
   const handleScan = async (data) => {
     if (data) {
       setScanningEnabled(false);
       let validated = false;
       let res;
 
-      // Check if this student is already validated
       const existingStudent = validatedList.find(
         (student) => student.userid === data
       );
 
       if (existingStudent) {
         toast.info(`Student already validated: ${existingStudent.name}`);
-        return; // Stop further processing
+        return;
       }
 
       try {
@@ -144,24 +134,21 @@ const Home = () => {
         toast.info(`User validated: ${res.data.name}`);
       } else {
         confirmValidation(res.data);
-        toast.error("QR Code not found.");
       }
     } else {
       toast.error("QR Code not found.");
     }
   };
 
-  // Confirm validation by adding to the validated list
   const confirmValidation = (entry) => {
     entry.validated = true;
     setValidatedList((prev) => [...prev, entry]);
     toast.success(`Validated: ${entry.name}`);
   };
 
-  // Function to download CSV of validated students
   const downloadCSV = () => {
-    const csvContent = `data:text/csv;charset=utf-8,Name,ID,url,mobile\n${validatedList
-      .map((s) => `${s.name},${s.userid},${s.url},${s.email}`)
+    const csvContent = `data:text/csv;charset=utf-8,Name,ID,url,mobile,food\n${validatedList
+      .map((s) => `${s.name},${s.userid},${s.url},${s.email},${JSON.stringify(s.food || {})}`)
       .join("\n")}`;
     const link = document.createElement("a");
     link.href = encodeURI(csvContent);
@@ -172,98 +159,99 @@ const Home = () => {
   return (
     <>
       <Head>
-        <title>Techmaghi</title> {/* Set the document title */}
+        <title>Techmaghi</title>
         <link rel="icon" type="image/svg+xml" href="/public/logo.png" />
         <meta name="description" content="Description of your site" />
-        {/* You can add other meta tags or link tags here as well */}
       </Head>
       <Header />
       <main style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1.5rem' }}>
-  <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '1rem' }}>QR Code Scanner</h1>
-  <video ref={videoRef} style={{ width: '100%', maxWidth: '25rem', marginBottom: '1rem', border: '1px solid #ccc' }} />
-  <button
-    onClick={() => setScanningEnabled((prev) => !prev)}
-    style={{
-      backgroundColor: '#3B82F6',
-      color: 'white',
-      padding: '0.5rem 1rem',
-      borderRadius: '0.375rem',
-    }}
-  >
-    {scanningEnabled ? 'Stop Scanning' : 'Start Scanning'}
-  </button>
-  <ToastContainer />
-  <div style={{ marginTop: '1.5rem' }}>
-    <input
-      type="text"
-      placeholder="Enter mobile number"
-      value={searchMobile}
-      onChange={(e) => setSearchMobile(e.target.value)}
-      style={{
-        border: '1px solid #ccc',
-        padding: '0.5rem 1rem',
-        marginRight: '0.5rem',
-        borderRadius: '0.375rem',
-      }}
-    />
-    <button
-      onClick={searchByMobile}
-      style={{
-        backgroundColor: '#3B82F6',
-        color: 'white',
-        padding: '0.5rem 1rem',
-        borderRadius: '0.375rem',
-      }}
-    >
-      Search by Mobile
-    </button>
-  </div>
+        <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '1rem' }}>QR Code Scanner</h1>
+        <video ref={videoRef} style={{ width: '100%', maxWidth: '25rem', marginBottom: '1rem', border: '1px solid #ccc' }} />
+        <button
+          onClick={() => setScanningEnabled((prev) => !prev)}
+          style={{
+            backgroundColor: '#3B82F6',
+            color: 'white',
+            padding: '0.5rem 1rem',
+            borderRadius: '0.375rem',
+          }}
+        >
+          {scanningEnabled ? 'Stop Scanning' : 'Start Scanning'}
+        </button>
+        <ToastContainer />
+        <div style={{ marginTop: '1.5rem' }}>
+          <input
+            type="text"
+            placeholder="Enter mobile number"
+            value={searchMobile}
+            onChange={(e) => setSearchMobile(e.target.value)}
+            style={{
+              border: '1px solid #ccc',
+              padding: '0.5rem 1rem',
+              marginRight: '0.5rem',
+              borderRadius: '0.375rem',
+            }}
+          />
+          <button
+            onClick={searchByMobile}
+            style={{
+              backgroundColor: '#3B82F6',
+              color: 'white',
+              padding: '0.5rem 1rem',
+              borderRadius: '0.375rem',
+            }}
+          >
+            Search by Mobile
+          </button>
+        </div>
 
-  {foundStudent && (
-    <div style={{ marginTop: '1rem' }}>
-      <p>
-        Found: {foundStudent.name} ({foundStudent.id})
-      </p>
-      <button
-        onClick={() => validateStudent(foundStudent)}
-        style={{
-          backgroundColor: '#10B981',
-          color: 'white',
-          padding: '0.5rem 1rem',
-          borderRadius: '0.375rem',
-          marginTop: '0.5rem',
-        }}
-      >
-        Validate
-      </button>
-    </div>
-  )}
-  {validatedList.length > 0 && (
-    <div style={{ marginTop: '1.5rem' }}>
-      <h3>Validated List:</h3>
-      <ul>
-        {validatedList.map((entry) => (
-          <li key={entry.id}>
-            {entry.name} ({entry.userid})
-          </li>
-        ))}
-      </ul>
-      <button
-        onClick={downloadCSV}
-        style={{
-          backgroundColor: '#10B981',
-          color: 'white',
-          padding: '0.5rem 1rem',
-          borderRadius: '0.375rem',
-          marginTop: '0.5rem',
-        }}
-      >
-        Download CSV
-      </button>
-    </div>
-  )}
-</main>
-
+        {foundStudent && (
+          <div style={{ marginTop: '1rem' }}>
+            <p>
+              Found: {foundStudent.name} ({foundStudent.userid})
+            </p>
+            {foundStudent.food && (
+              <p>Food Preferences: Veg: {foundStudent.food.Veg || 0}, Chicken: {foundStudent.food.Chicken || 0}</p>
+            )}
+            <button
+              onClick={() => validateStudent(foundStudent)}
+              style={{
+                backgroundColor: '#10B981',
+                color: 'white',
+                padding: '0.5rem 1rem',
+                borderRadius: '0.375rem',
+                marginTop: '0.5rem',
+              }}
+            >
+              Validate
+            </button>
+          </div>
+        )}
+        {validatedList.length > 0 && (
+          <div style={{ marginTop: '1.5rem' }}>
+            <h3>Validated List:</h3>
+            <ul>
+              {validatedList.map((entry) => (
+                <li key={entry.userid}>
+                  {entry.name} ({entry.userid}) - {entry.food}
+                </li>
+              ))}
+            </ul>
+            <button
+              onClick={downloadCSV}
+              style={{
+                backgroundColor: '#10B981',
+                color: 'white',
+                padding: '0.5rem 1rem',
+                borderRadius: '0.375rem',
+                marginTop: '0.5rem',
+              }}
+            >
+              Download CSV
+            </button>
+          </div>
+        )}
+      </main>
       <Footer />
     </>
   );
