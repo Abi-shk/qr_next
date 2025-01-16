@@ -4,7 +4,6 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import "../styles/globals.css";
 import Head from 'next/head';
 
 
@@ -178,65 +177,92 @@ const Home = () => {
         {/* You can add other meta tags or link tags here as well */}
       </Head>
       <Header />
-      <main className="min-h-screen flex flex-col items-center p-6">
-        <h1 className="text-3xl font-bold mb-4">QR Code Scanner</h1>
-        <video ref={videoRef} className="w-full max-w-md mb-4 border" />
-        <button
-          onClick={() => setScanningEnabled((prev) => !prev)}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          {scanningEnabled ? "Stop Scanning" : "Start Scanning"}
-        </button>
-        <ToastContainer />
-        <div className="mt-6">
-          <input
-            type="text"
-            placeholder="Enter mobile number"
-            value={searchMobile}
-            onChange={(e) => setSearchMobile(e.target.value)}
-            className="border px-2 py-1"
-          />
-          <button
-            onClick={searchByMobile}
-            className="bg-blue-500 text-white px-4 py-2 rounded ml-2"
-          >
-            Search by Mobile
-          </button>
-        </div>
+      <main style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1.5rem' }}>
+  <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '1rem' }}>QR Code Scanner</h1>
+  <video ref={videoRef} style={{ width: '100%', maxWidth: '25rem', marginBottom: '1rem', border: '1px solid #ccc' }} />
+  <button
+    onClick={() => setScanningEnabled((prev) => !prev)}
+    style={{
+      backgroundColor: '#3B82F6',
+      color: 'white',
+      padding: '0.5rem 1rem',
+      borderRadius: '0.375rem',
+    }}
+  >
+    {scanningEnabled ? 'Stop Scanning' : 'Start Scanning'}
+  </button>
+  <ToastContainer />
+  <div style={{ marginTop: '1.5rem' }}>
+    <input
+      type="text"
+      placeholder="Enter mobile number"
+      value={searchMobile}
+      onChange={(e) => setSearchMobile(e.target.value)}
+      style={{
+        border: '1px solid #ccc',
+        padding: '0.5rem 1rem',
+        marginRight: '0.5rem',
+        borderRadius: '0.375rem',
+      }}
+    />
+    <button
+      onClick={searchByMobile}
+      style={{
+        backgroundColor: '#3B82F6',
+        color: 'white',
+        padding: '0.5rem 1rem',
+        borderRadius: '0.375rem',
+      }}
+    >
+      Search by Mobile
+    </button>
+  </div>
 
-        {foundStudent && (
-          <div className="mt-4">
-            <p>
-              Found: {foundStudent.name} ({foundStudent.id})
-            </p>
-            <button
-              onClick={() => validateStudent(foundStudent)}
-              className="bg-green-500 text-white px-4 py-2 rounded mt-2"
-            >
-              Validate
-            </button>
-          </div>
-        )}
-        {validatedList.length > 0 && (
-          <div className="mt-6">
-            <h3>Validated List:</h3>
-            <ul>
-              {validatedList.map((entry) => (
-                <li key={entry.id}>
-                  {entry.name} ({entry.userid})
-                </li>
-              ))}
-            </ul>
-            <button
-              onClick={downloadCSV}
-              className="bg-green-500 text-white px-4 py-2 rounded mt-2"
-            >
-              Download CSV
-            </button>
-          </div>
-        )}
-        
-      </main>
+  {foundStudent && (
+    <div style={{ marginTop: '1rem' }}>
+      <p>
+        Found: {foundStudent.name} ({foundStudent.id})
+      </p>
+      <button
+        onClick={() => validateStudent(foundStudent)}
+        style={{
+          backgroundColor: '#10B981',
+          color: 'white',
+          padding: '0.5rem 1rem',
+          borderRadius: '0.375rem',
+          marginTop: '0.5rem',
+        }}
+      >
+        Validate
+      </button>
+    </div>
+  )}
+  {validatedList.length > 0 && (
+    <div style={{ marginTop: '1.5rem' }}>
+      <h3>Validated List:</h3>
+      <ul>
+        {validatedList.map((entry) => (
+          <li key={entry.id}>
+            {entry.name} ({entry.userid})
+          </li>
+        ))}
+      </ul>
+      <button
+        onClick={downloadCSV}
+        style={{
+          backgroundColor: '#10B981',
+          color: 'white',
+          padding: '0.5rem 1rem',
+          borderRadius: '0.375rem',
+          marginTop: '0.5rem',
+        }}
+      >
+        Download CSV
+      </button>
+    </div>
+  )}
+</main>
+
       <Footer />
     </>
   );
