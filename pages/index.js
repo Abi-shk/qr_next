@@ -144,6 +144,7 @@ const Home = () => {
         toast.info(`User validated: ${res.data.name}`);
       } else {
         confirmValidation(res.data);
+        toast.error("QR Code not found.");
       }
     } else {
       toast.error("QR Code not found.");
